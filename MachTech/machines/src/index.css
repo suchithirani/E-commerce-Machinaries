@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Deprecated */
+@media (forced-colors: active) {
+  body {
+      background-color: Window;
+      color: WindowText;
+  }
+}

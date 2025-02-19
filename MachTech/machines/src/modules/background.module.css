@@ -1,0 +1,33 @@
+/* Add this CSS to your styles */
+.hero-section {
+  position: relative;
+  height: 100vh; /* Adjust based on your requirements */
+  background-image: url('https://static.vecteezy.com/system/resources/previews/027/381/563/large_2x/black-and-white-of-construction-sites-with-several-cranes-silhouette-concept-free-photo.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+.hero-section h1 {
+  z-index: 10;
+}
+
+.hero-section::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Optional overlay for better text readability */
+  z-index: 1;
+}
+
+.hero-section .container {
+  z-index: 2;
+}
