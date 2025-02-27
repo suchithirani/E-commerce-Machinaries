@@ -2,6 +2,10 @@ package com.machine.backend.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+//import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +40,14 @@ public class User {
     @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @ManyToMany
+    @JoinTable(
+        name = "user_products",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    @JsonIgnore
+    private List<Product> products;
     // Default Constructor
     public User() {
     }
@@ -53,6 +65,9 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
+    public List<Product> getProducts() {
+        return products;
+    }
     // Getters and Setters
     public Long getId() {
         return id;

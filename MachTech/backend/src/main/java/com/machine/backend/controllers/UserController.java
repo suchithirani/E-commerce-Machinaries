@@ -1,10 +1,13 @@
 package com.machine.backend.controllers;
 
 import com.machine.backend.Dto.UserDto;
+import com.machine.backend.models.Product;
 import com.machine.backend.models.User;
+//import com.machine.backend.services.ProductService;
 import com.machine.backend.services.UserService;
 
 import org.apache.http.HttpStatus;
+//import org.hibernate.mapping.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +21,7 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    //private ProductService productService;
 
     // Register a new user
     @PostMapping("/register")
@@ -62,4 +66,17 @@ public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) {
         userService.deleteUserById(id);
         return ResponseEntity.ok("User deleted successfully.");
     }
+    @GetMapping("/{userId}/products")
+public ResponseEntity<?> getProductsByUser(@PathVariable Long userId) {
+    Optional<User> userOpt = userService.getUserById(userId);
+
+    if (userOpt.isPresent()) {
+        User user = userOpt.get();
+        List<Product> products = user.getProducts(); // Assuming you use a Set<Product>
+        
+        return ResponseEntity.ok(products);
+    } else {
+        return ResponseEntity.status(404).body("User not found!");
+    }
+}
 }

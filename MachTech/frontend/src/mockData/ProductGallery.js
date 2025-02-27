@@ -41,7 +41,7 @@ export const products = [
     name:"Ammann ABG 7920 Tracked Paver",
     description:"Ammann ABG 7920 Tracked Paver is a compact yet powerful asphalt paver designed for urban roads, rural infrastructure, and industrial projects.",
     price:500000,
-    catagery:"Paver",
+    category:"Paver",
     brand:"Ammann",
     image:"https://machanx.com/_next/image?url=https%3A%2F%2Fik.imagekit.io%2Flgpj2hvzf%2FPRODUCT%2FM232-7920-1200x837_o0AvewmE8.webp&w=1920&q=75"
   },

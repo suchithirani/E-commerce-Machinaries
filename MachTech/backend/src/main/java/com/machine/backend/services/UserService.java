@@ -38,10 +38,19 @@ public class UserService {
         return userRepository.findAll();
     }
 
+
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
+    
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
 
     public User updateUserById(Long id, UserDto userDto) {
         Optional<User> optionalUser = userRepository.findById(id);
