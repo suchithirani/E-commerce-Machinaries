@@ -6,14 +6,14 @@ public class ProductDto {
     private String name;
     private String description;
     private BigDecimal price;
-    private Integer categoryId;
+    private Long categoryId;
     private Integer stock;
     private String imageUrl;
     private String brand;
     private BigDecimal weight;
     private String warranty;
     public String getName() {
-      return name;
+      return name; 
     }
     public void setName(String name) {
       this.name = name;
@@ -30,10 +30,10 @@ public class ProductDto {
     public void setPrice(BigDecimal price) {
       this.price = price;
     }
-    public Integer getCategoryId() {
+    public Long getCategoryId() {
       return categoryId;
     }
-    public void setCategoryId(Integer categoryId) {
+    public void setCategoryId(Long categoryId) {
       this.categoryId = categoryId;
     }
     public Integer getStock() {

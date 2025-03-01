@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+//import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "products")
@@ -22,8 +24,6 @@ public class Product {
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "category_id")
-    private Integer categoryId;
 
     private Integer stock;
 
@@ -46,8 +46,19 @@ public class Product {
     @ManyToMany(mappedBy = "products")
     @JsonIgnore
     private Set<User> users;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id",nullable = false)
+    @JsonIgnoreProperties("products")
+    private Category category;
     
 
+    public Category getCategory() {
+      return category;
+    }
+    public void setCategory(Category category) {
+      this.category = category;
+    }
     public Set<User> getUsers() {
       return users;
   }
@@ -83,13 +94,6 @@ public class Product {
       this.price = price;
     }
 
-    public Integer getCategoryId() {
-      return categoryId;
-    }
-
-    public void setCategoryId(Integer categoryId) {
-      this.categoryId = categoryId;
-    }
 
     public Integer getStock() {
       return stock;

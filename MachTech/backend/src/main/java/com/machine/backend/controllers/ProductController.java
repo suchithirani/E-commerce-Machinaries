@@ -3,6 +3,8 @@ package com.machine.backend.controllers;
 //import com.google.cloud.storage.Acl.User;
 import com.machine.backend.Dto.ProductDto;
 import com.machine.backend.models.Product;
+import com.machine.backend.models.User;
+//import com.machine.backend.services.CategoryService;
 import com.machine.backend.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,15 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    
     @PostMapping("/add")
-    public Product addProduct(@RequestBody ProductDto productDto) {
-        return productService.addProduct(productDto);
+    public ResponseEntity<?> addProduct(@RequestBody ProductDto productDto) {
+        try {
+            Product product = productService.addProduct(productDto);
+            return ResponseEntity.ok(product);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/all")
@@ -44,7 +52,7 @@ public ResponseEntity<?> getUsersByProduct(@PathVariable Long productId) {
     Optional<Product> productOpt = productService.getProductById(productId);
 
     if (productOpt.isPresent()) {
-        Set<com.machine.backend.models.User> users = productOpt.get().getUsers();
+        Set<User> users = productOpt.get().getUsers();
         return ResponseEntity.ok(users);
     } else {
         return ResponseEntity.status(404).body("Product not found!");
