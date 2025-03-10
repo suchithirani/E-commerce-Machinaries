@@ -142,6 +142,24 @@ public class Product {
     public void setCreatedAt(LocalDateTime createdAt) {
       this.createdAt = createdAt;
     }
+    public Product(Long productId, String name, String description, BigDecimal price, Integer stock, String imageUrl,
+        String brand, BigDecimal weight, String warranty, Category category) {
+      this.productId = productId;
+      this.name = name;
+      this.description = description;
+      this.price = price;
+      this.stock = stock;
+      this.imageUrl = imageUrl;
+      this.brand = brand;
+      this.weight = weight;
+      this.warranty = warranty;
+      this.createdAt = LocalDateTime.now();
+      
+      this.category = category;
+    }
+    public Product() {
+    }
 
+    
     
 }

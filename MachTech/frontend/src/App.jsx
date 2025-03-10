@@ -1,56 +1,30 @@
-import "react";
-//import { NavbarMenu } from './mockData/data';
-// import { BiSearchAlt2 } from "react-icons/bi";
-// import { FaShoppingCart } from "react-icons/fa";
-import Navbar from "./components/Navbar";
-//import ResponsiveMenu from './components/ResponsiveMenu';
-
-
-
-
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useState ,useEffect} from "react";
-
-import { ToastContainer } from "react-toastify";
-
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
+import Shop from './components/Shop';
+import Contact from './components/Contact';
+import About from './components/About';
+import ProductGallary from './components/Progal';
+import Cart from './components/Cart';
+import OperatorListingPage from './components/OperatorListingPage';
 
 function App() {
-  const [login,setLogin]=useState(true);
-  const [isOpen, setIsOpen] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLogin(true);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  
   return (
-    <>
-    <Navbar/>
-      
-    
-      {/* <Router>
+    <Router>
+      <Navbar />
+      <main>
         <Routes>
-          
-          <Route
-            path="/"
-            element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/navbar"
-            element={isAuthenticated ? <Navbar /> : <Navigate to="/login" />}
-          />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/progal" element={<ProductGallary />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/operatorlistingpage" element={<OperatorListingPage />} />
         </Routes>
-      </Router> */}
-
-
-      <ToastContainer />
-    </>
+      </main>
+    </Router>
   );
 }
-
 
 export default App;

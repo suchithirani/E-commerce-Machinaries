@@ -2,11 +2,8 @@ package com.machine.backend.services;
 
 import com.machine.backend.Dto.ReviewDto;
 import com.machine.backend.models.Review;
-import com.machine.backend.models.Product;
-import com.machine.backend.models.User;
 import com.machine.backend.repository.ReviewRepository;
-import com.machine.backend.repository.UserRepository;
-import com.machine.backend.repository.ProductRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +16,10 @@ public class ReviewService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
 
     public void addReview(ReviewDto reviewDto) {
-        User user = userRepository.findById(reviewDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Product product = productRepository.findById(reviewDto.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         Review review = new Review();
-        review.setUser(user);
-        review.setProduct(product);
         review.setRating(reviewDto.getRating());
         review.setComment(reviewDto.getComment());
 
@@ -62,11 +47,9 @@ public class ReviewService {
     private ReviewDto convertToDto(Review review) {
         ReviewDto dto = new ReviewDto();
         dto.setId(review.getId());
-        dto.setUserId(review.getUser().getId());
-        dto.setProductId(review.getProduct().getProductId());
         dto.setRating(review.getRating());
         dto.setComment(review.getComment());
-        dto.setCreatedAt(review.getCreatedAt().toString());
+        dto.setCreatedAt(review.getCreatedAt());
         return dto;
     }
 }

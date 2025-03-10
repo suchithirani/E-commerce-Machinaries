@@ -1,6 +1,7 @@
 package com.machine.backend.models;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,68 +11,43 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
     private int rating;
 
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     public Long getId() {
-      return id;
+        return id;
     }
 
     public void setId(Long id) {
-      this.id = id;
-    }
-
-    public User getUser() {
-      return user;
-    }
-
-    public void setUser(User user) {
-      this.user = user;
-    }
-
-    public Product getProduct() {
-      return product;
-    }
-
-    public void setProduct(Product product) {
-      this.product = product;
+        this.id = id;
     }
 
     public int getRating() {
-      return rating;
+        return rating;
     }
 
     public void setRating(int rating) {
-      this.rating = rating;
+        this.rating = rating;
     }
 
     public String getComment() {
-      return comment;
+        return comment;
     }
 
     public void setComment(String comment) {
-      this.comment = comment;
+        this.comment = comment;
     }
 
     public LocalDateTime getCreatedAt() {
-      return createdAt;
+        return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-      this.createdAt = createdAt;
+        this.createdAt = createdAt;
     }
-
-    
 }

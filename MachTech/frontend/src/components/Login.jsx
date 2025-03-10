@@ -1,21 +1,16 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { X, Loader2 } from 'lucide-react';
-//import { Alert, AlertDescription } from '../ui/alert';
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, getIdToken } from "firebase/auth";
 import { auth } from "../firebase";
 import { toast } from "react-toastify";
-import  Home from "./Home";
-import { getIdToken } from "firebase/auth";
 
-
-// eslint-disable-next-line react/prop-types
 const Login = ({ onClose, onSignupClick }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [home,setHome]=useState();
+  const navigate = useNavigate(); // ✅ Using navigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,41 +18,47 @@ const Login = ({ onClose, onSignupClick }) => {
     setLoading(true);
     
     try {
+        console.log("Attempting login...");
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        
+        console.log("Firebase user authenticated:", user);
+
         // ✅ Get Firebase ID Token
-        const token = await getIdToken(user);  // 🔥 FIXED
+        const token = await getIdToken(user);
+        console.log("Firebase ID Token:", token); // 🔥 Check if token is retrieved
 
         // ✅ Send Token to Backend for Verification
         const response = await fetch("http://localhost:8080/api/auth/verifyToken", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,  // Send as Bearer token
+                "Authorization": `Bearer ${token}`,
             },
         });
 
         const data = await response.json();
+        console.log("Backend Response:", response.status, data);
 
         if (response.ok) {
-            console.log("User logged in Successfully:", data);
-            window.location.href = "/home";
-            toast.success("User logged in Successfully", { position: "top-center" });
+            console.log("User verified successfully.");
+            toast.success("User logged in successfully!", { position: "top-center" });
+
+            // ✅ Navigate after verification
+            navigate("/home"); // 🔥 Ensure this runs
         } else {
-            throw new Error(data.message || "Authentication failed");
+            throw new Error(data.message || "Verification failed! Please try again.");
         }
     } catch (error) {
-        console.log(error.message);
+        console.error("Login Error:", error.message);
+        setError(error.message);
         toast.error(error.message, { position: "bottom-center" });
     } finally {
         setLoading(false);
     }
-};
-
+  };
 
   return (
-    <div className=" z-40 fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center  ">
+    <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-8 w-full max-w-md relative">
         <button
           onClick={onClose}
@@ -67,22 +68,14 @@ const Login = ({ onClose, onSignupClick }) => {
         </button>
 
         <h2 className="text-2xl font-bold mb-6">Login</h2>
-        
 
-        {/* {error && (
-          <Alert className="mb-4 bg-red-50 text-red-700 border-red-200">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )} */}
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4">
           <div>
             <label className="block text-gray-700 mb-2">Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              name="email"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
           </div>
@@ -91,49 +84,32 @@ const Login = ({ onClose, onSignupClick }) => {
             <label className="block text-gray-700 mb-2">Password</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              name="password"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
           </div>
 
           <button
             type="submit"
-            onClick={()=>setHome()}
-            disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md flex items-center justify-center"
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-md"
           >
-            {
-              home&&(
-                <Home/>
-              )
-            }
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin mr-2" size={20} />
-                Signing in...
-              </>
-            ) : (
-              'Sign In'
-            )}
+            Login
           </button>
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-600">
-          <a href="#" className="text-blue-500 hover:text-blue-600">Forgot password?</a>
-          <div className="mt-2">
-            Don&apos;t have an account?{' '}
-            <button 
-              onClick={onSignupClick}
-              className="text-blue-500 hover:text-blue-600"
-            >
-              Sign up
-            </button>
-          </div>
+          Don't have an account?{' '}
+          <button 
+            onClick={onSignupClick}
+            className="text-yellow-500 hover:text-yellow-600"
+          >
+            Sign Up
+          </button>
         </div>
       </div>
     </div>
   );
 };
+
 export default Login;

@@ -44,6 +44,11 @@ public class Category {
     this.products = products;
   }
 
+  public Category(Long categoryId, String categoryName) {
+    this.categoryId = categoryId;
+    this.categoryName = categoryName;
+  }
+
   
   
 }

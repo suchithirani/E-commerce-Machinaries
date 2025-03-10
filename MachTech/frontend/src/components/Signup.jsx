@@ -1,13 +1,9 @@
-
-import  { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
-import { createUserWithEmailAndPassword} from 'firebase/auth';
-//import { Alert, AlertDescription } from '../ui/alert';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
-import {db,auth} from '../firebase'
-//import { getIdToken } from "firebase/auth";
-
+import { db, auth } from '../firebase';
 
 // eslint-disable-next-line react/prop-types
 const Signup = ({ onClose, onLoginClick }) => {
@@ -19,6 +15,20 @@ const Signup = ({ onClose, onLoginClick }) => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [closeButtonDisabled, setCloseButtonDisabled] = useState(true);
+  const [userRegistered, setUserRegistered] = useState(false);
+  
+  // Disable close button for 3 seconds when component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only enable the close button after 3 seconds if the user has registered
+      if (userRegistered) {
+        setCloseButtonDisabled(false);
+      }
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, [userRegistered]);
 
   const validatePassword = (password) => {
     const requirements = {
@@ -85,35 +95,48 @@ const Signup = ({ onClose, onLoginClick }) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
   
-      // ✅ Store User Data in Firestore
+      // Store User Data in Firestore
       await setDoc(doc(db, "users", user.uid), {
         name,
         email,
         uid: user.uid,
         createdAt: new Date()
       });
-  
+
       toast.success("User Registered Successfully!", { position: "top-center" });
+      
+      // Set user as registered and enable close button
+      setUserRegistered(true);
+      setCloseButtonDisabled(false);
+
+      // Redirect user to the homepage
+      window.location.href = "/home";  // Change this to your actual homepage route
+
     } catch (error) {
       toast.error(error.message, { position: "bottom-center" });
     } finally {
       setLoading(false);
     }
   };
+
+  const handleClose = () => {
+    if (!closeButtonDisabled) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed z-40  inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-8 w-full max-w-md relative">
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          onClick={handleClose}
+          className={`absolute top-4 right-4 text-gray-500 ${closeButtonDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-700'}`}
+          disabled={closeButtonDisabled}
         >
           <X size={24} />
         </button>
 
         <h2 className="text-2xl font-bold mb-6">Sign Up</h2>
-
-        
-        
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -123,7 +146,7 @@ const Signup = ({ onClose, onLoginClick }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
             {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
@@ -136,7 +159,7 @@ const Signup = ({ onClose, onLoginClick }) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
@@ -149,7 +172,7 @@ const Signup = ({ onClose, onLoginClick }) => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
@@ -183,7 +206,7 @@ const Signup = ({ onClose, onLoginClick }) => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
             {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
@@ -192,7 +215,7 @@ const Signup = ({ onClose, onLoginClick }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md flex items-center justify-center"
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-md flex items-center justify-center"
           >
             {loading ? (
               <>
@@ -209,7 +232,7 @@ const Signup = ({ onClose, onLoginClick }) => {
           Already have an account?{' '}
           <button 
             onClick={onLoginClick}
-            className="text-blue-500 hover:text-blue-600"
+            className="text-yellow-500 hover:text-yellow-600"
           >
             Login
           </button>
@@ -219,4 +242,4 @@ const Signup = ({ onClose, onLoginClick }) => {
   );
 };
 
-export default Signup
+export default Signup;

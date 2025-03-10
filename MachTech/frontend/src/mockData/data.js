@@ -30,5 +30,10 @@ export const NavbarMenu =[
     link:"/machinaries/src/components/Contact.jsx",
     name:'Contact'
   },
-  
+  {
+  id:6,
+  title:"Hire Operator",
+  link:"/machinaries/src/components/OperatorListingPage.jsx",
+  name:'OperatorListingPage'
+},
 ];
