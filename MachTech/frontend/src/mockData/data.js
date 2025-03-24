@@ -19,6 +19,12 @@ export const NavbarMenu =[
     name:'Progal'
   },
   {
+    id:6,
+    title:"Hire Operator",
+    link:"/machinaries/src/components/OperatorListingPage.jsx",
+    name:'OperatorListingPage'
+  },
+  {
   id:4,
     title:"About Us",
     link:"/machinaries/src/components/About.jsx",
@@ -30,10 +36,4 @@ export const NavbarMenu =[
     link:"/machinaries/src/components/Contact.jsx",
     name:'Contact'
   },
-  {
-  id:6,
-  title:"Hire Operator",
-  link:"/machinaries/src/components/OperatorListingPage.jsx",
-  name:'OperatorListingPage'
-},
 ];

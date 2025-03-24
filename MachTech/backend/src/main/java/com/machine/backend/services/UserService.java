@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -15,63 +15,80 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public void createUser(UserDto userDto) {
-        System.out.println("Creating user with Firebase UID: " + userDto.getFirebaseUid());  // Debug
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
-        if (userDto.getFirebaseUid() == null) {
-            throw new IllegalArgumentException("Firebase UID cannot be null!");
+    public UserDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        return convertToDTO(user);
+    }
+
+    public UserDto createUser(UserDto userDTO) {
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new RuntimeException("Email already exists!");
         }
 
         User user = new User();
-        user.setFirebaseUid(userDto.getFirebaseUid());
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
-        user.setPhone(userDto.getPhone());
-        user.setAddress(userDto.getAddress());
-        user.setRole(userDto.getRole());
+        user.setName(userDTO.getName());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword()); // Directly storing the password (no encoding)
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return convertToDTO(savedUser);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
+    public UserDto updateUser(Long id, UserDto userDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
-
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    
-    public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
-    }
-
-    public void saveUser(User user) {
-        userRepository.save(user);
-    }
-
-    public User updateUserById(Long id, UserDto userDto) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setName(userDto.getName());
-            user.setEmail(userDto.getEmail());
-            user.setAddress(userDto.getAddress());
-            user.setPhone(userDto.getPhone());
-            user.setPassword(userDto.getPassword());
-
-            return userRepository.save(user);
+        if (userDTO.getName() != null && !userDTO.getName().isBlank()) {
+            user.setName(userDTO.getName());
         }
-        throw new RuntimeException("User not found with ID: " + id);
+        if (userDTO.getEmail() != null && !userDTO.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(userDTO.getEmail())) {
+                throw new RuntimeException("Email already exists!");
+            }
+            user.setEmail(userDTO.getEmail());
+        }
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isBlank()) {
+            user.setPassword(userDTO.getPassword()); // Directly updating the password (no encoding)
+        }
+
+        User updatedUser = userRepository.save(user);
+        return convertToDTO(updatedUser);
     }
 
-    public void deleteUserById(Long id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
+    public UserDto authenticateUser(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    
+        // Simple plain-text password check (not recommended for production)
+        if (user.getPassword().equals(password)) {
+            return convertToDTO(user);
         } else {
+            return null;  // Return null if the password does not match.
+        }
+    }
+    
+
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
             throw new RuntimeException("User not found with ID: " + id);
         }
+        userRepository.deleteById(id);
+    }
+
+    private UserDto convertToDTO(User user) {
+        return new UserDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt()
+        );
     }
 }

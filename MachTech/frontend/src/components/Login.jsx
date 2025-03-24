@@ -16,45 +16,25 @@ const Login = ({ onClose, onSignupClick }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+  
     try {
-        console.log("Attempting login...");
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        console.log("Firebase user authenticated:", user);
+    const response = await fetch("http://localhost:8080/api/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-        // ✅ Get Firebase ID Token
-        const token = await getIdToken(user);
-        console.log("Firebase ID Token:", token); // 🔥 Check if token is retrieved
-
-        // ✅ Send Token to Backend for Verification
-        const response = await fetch("http://localhost:8080/api/auth/verifyToken", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-        });
-
-        const data = await response.json();
-        console.log("Backend Response:", response.status, data);
-
-        if (response.ok) {
-            console.log("User verified successfully.");
-            toast.success("User logged in successfully!", { position: "top-center" });
-
-            // ✅ Navigate after verification
-            navigate("/home"); // 🔥 Ensure this runs
-        } else {
-            throw new Error(data.message || "Verification failed! Please try again.");
-        }
-    } catch (error) {
-        console.error("Login Error:", error.message);
-        setError(error.message);
-        toast.error(error.message, { position: "bottom-center" });
-    } finally {
-        setLoading(false);
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Login successful", data);
+      alert("User logged in successfully!");
+      // Save user data to localStorage or handle session here
+    } else {
+      alert("Invalid email or password");
     }
+  } catch (error) {
+    console.error("Error:", error);
+  }
   };
 
   return (
@@ -99,14 +79,14 @@ const Login = ({ onClose, onSignupClick }) => {
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <button 
-            onClick={onSignupClick}
-            className="text-yellow-500 hover:text-yellow-600"
-          >
-            Sign Up
-          </button>
-        </div>
+  Don't have an account?{' '}
+  <button 
+    onClick={onSignupClick} // ✅ This now triggers the correct toggle in Navbar
+    className="text-yellow-500 hover:text-yellow-600"
+  >
+    Sign Up
+  </button>
+</div>
       </div>
     </div>
   );
