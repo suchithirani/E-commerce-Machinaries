@@ -1,20 +1,53 @@
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
+import Payment from './Payment'; // Make sure to adjust the import path
 
-const Cart = ({ cart = [], removeFromCart, updateQuantity }) => {
+const Cart = ({ cart = [], removeFromCart, updateQuantity, clearCart }) => {
   const [loading, setLoading] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
   
   const totalPrice = useMemo(() => 
     cart.reduce((total, item) => total + item.price * item.quantity, 0),
     [cart]
   );
-  
 
   const handleCheckout = () => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 2000); // Simulate checkout process
+    setShowPayment(true);
   };
-  
+
+  const handlePaymentSuccess = () => {
+    setOrderComplete(true);
+    clearCart();
+  };
+
+  const handleBackToCart = () => {
+    setShowPayment(false);
+  };
+
+  if (orderComplete) {
+    return (
+      <div className="p-4 bg-gray-100 rounded-lg shadow-md mb-6 text-center">
+        <h3 className="text-xl font-bold mb-4">Order Complete!</h3>
+        <p className="mb-4">Thank you for your purchase.</p>
+        <motion.button
+          className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          onClick={() => setOrderComplete(false)}
+          whileTap={{ scale: 0.95 }}
+        >
+          Continue Shopping
+        </motion.button>
+      </div>
+    );
+  }
+
+  if (showPayment) {
+    return <Payment 
+      totalPrice={totalPrice} 
+      onPaymentSuccess={handlePaymentSuccess}
+      onBackToCart={handleBackToCart}
+    />;
+  }
 
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-md mb-6">

@@ -13,7 +13,7 @@ public class OrderDto {
     private String trackingNumber;
     private BigDecimal tax;
     private List<OrderItemDto> orderItems;
-    private PaymentDto payment;
+    private PaymentRequestDto payment;
 
     // Getters and Setters
     public Long getUserId() {
@@ -64,10 +64,10 @@ public class OrderDto {
     public void setOrderItems(List<OrderItemDto> orderItems) {
         this.orderItems = orderItems;
     }
-    public PaymentDto getPayment() {
+    public PaymentRequestDto getPayment() {
         return payment;
     }
-    public void setPayment(PaymentDto payment) {
+    public void setPayment(PaymentRequestDto payment) {
         this.payment = payment;
     }
 }

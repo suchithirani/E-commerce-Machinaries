@@ -1,39 +1,40 @@
 package com.machine.backend.controllers;
 
-import com.machine.backend.Dto.PaymentDto;
-import com.machine.backend.models.Payment;
+import com.machine.backend.Dto.PaymentRequestDto;
+import com.machine.backend.Dto.PaymentResponseDto;
+import com.machine.backend.Dto.PaymentVerificationDTO;
 import com.machine.backend.services.PaymentService;
+import com.razorpay.RazorpayException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/api/payments")  // Changed to plural for REST conventions
 public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
 
-    @PostMapping("/process")
-    public ResponseEntity<?> processPayment(@RequestBody PaymentDto paymentDto) {
-        try {
-            Payment payment = paymentService.processPayment(paymentDto);
-            return ResponseEntity.ok(payment);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+    @PostMapping("/orders")
+    public ResponseEntity<PaymentResponseDto> createPaymentOrder(
+            @RequestBody PaymentRequestDto paymentRequest) throws RazorpayException {
+        PaymentResponseDto response = paymentService.createOrder(paymentRequest);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/order/{orderId}")
-    public ResponseEntity<?> getPaymentByOrderId(@PathVariable Long orderId) {
-        Optional<Payment> payment = paymentService.getPaymentByOrderId(orderId);
+    @PostMapping("/verification")
+    public ResponseEntity<String> verifyPayment(
+            @RequestBody PaymentVerificationDTO verificationDTO) throws RazorpayException {
+        String result = paymentService.verifyPayment(verificationDTO);
+        return ResponseEntity.ok(result);
+    }
 
-        if (payment.isPresent()) {
-            return ResponseEntity.ok(payment.get());
-        } else {
-            return ResponseEntity.status(404).body("Payment not found for this order.");
-        }
+    // Additional useful endpoint
+    @GetMapping("/orders/{orderId}/status")
+    public ResponseEntity<String> getPaymentStatus(
+            @PathVariable String orderId) throws RazorpayException {
+        String status = paymentService.getPaymentStatus(orderId);
+        return ResponseEntity.ok(status);
     }
 }

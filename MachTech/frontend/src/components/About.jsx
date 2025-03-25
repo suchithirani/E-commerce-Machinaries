@@ -8,17 +8,17 @@ import {
 const carouselImages = [
   {
     id: 1,
-    src: "/api/placeholder/800/400?text=Technology+Innovation",
+    src: "https://imgs.search.brave.com/VF9gEIl6eqBe_igLi7e4gAoaJooEGD7iOfsdtbv1rK8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS1waG90/by9jb25zdHJ1Y3Rp/b24tYmFja2dyb3Vu/ZC1ibHVlLXNreS1u/ZXctYnVpbGRpbmdz/LWlzLWNhcmdvLWNy/YW5lLWNvbnN0cnVj/dGlvbi1jb25jZXB0/XzM1OTAzMS0xODg0/OC5qcGc_c2VtdD1h/aXNfaHlicmlk",
     alt: "Technology Innovation",
   },
   {
     id: 2,
-    src: "/api/placeholder/800/400?text=Team+Collaboration",
+    src: "https://media.gettyimages.com/id/158627395/photo/excavator-at-construction-site.jpg?s=612x612&w=0&k=20&c=Gkmgq8RC_YfstogesOUmajuJbYHL-xbp4Lkvu5rGX1M=",
     alt: "Team Collaboration",
   },
   {
     id: 3,
-    src: "/api/placeholder/800/400?text=Future+Solutions",
+    src: "https://blog.constructiononline.com/hs-fs/hubfs/mark-potterton-sNVkn3507Oo-unsplash.jpg?width=4000&height=3000&name=mark-potterton-sNVkn3507Oo-unsplash.jpg",
     alt: "Future Solutions",
   }
 ];
