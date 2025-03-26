@@ -1,41 +1,16 @@
-package com.machine.backend.models;
+package com.machine.backend.Dto;
 
-import jakarta.persistence.*;
 import java.util.List;
 
-@Entity
-@Table(name = "operators")
-public class Operator {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class OperatorResponseDto {
     private Long id;
-    
     private String name;
     private String location;
     private String experienceRange;
     private boolean certified;
     private boolean licensed;
     private String availability;
-    
-    @ElementCollection
-    @CollectionTable(name = "operator_equipment", joinColumns = @JoinColumn(name = "operator_id"))
-    @Column(name = "equipment_type")
     private List<String> equipmentTypes;
-    
-    // Constructors
-    public Operator() {}
-    
-    public Operator(String name, String location, String experienceRange, 
-                   boolean certified, boolean licensed, String availability, 
-                   List<String> equipmentTypes) {
-        this.name = name;
-        this.location = location;
-        this.experienceRange = experienceRange;
-        this.certified = certified;
-        this.licensed = licensed;
-        this.availability = availability;
-        this.equipmentTypes = equipmentTypes;
-    }
     
     // Getters and Setters
     public Long getId() {

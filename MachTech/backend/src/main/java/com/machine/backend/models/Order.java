@@ -29,12 +29,11 @@ public class Order {
     private BigDecimal tax;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<OrderItem> orderItems;
-    @JsonManagedReference
-
+    
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Payment payment; // ✅ Ensure `mappedBy` matches the field in `Payment.java`
-    @JsonManagedReference
+    private Payment payment;
     
     // Getters and Setters
     public Long getOrderId() {
