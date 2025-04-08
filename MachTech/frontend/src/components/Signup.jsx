@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { toast } from "react-toastify";
-
-const Signup = ({ onClose, onLoginClick }) => {
+import { useNavigate } from 'react-router-dom';
+const Signup = ({ onClose, onLoginClick,onSignupSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-
+  const navigate=useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [closeButtonDisabled, setCloseButtonDisabled] = useState(true);
@@ -77,8 +77,10 @@ const Signup = ({ onClose, onLoginClick }) => {
       if (response.ok) {
         const data = await response.json();
         toast.success("Registration successful!");
-        console.log("Registration successful", data);
-        setUserRegistered(true); // Trigger modal closing timer
+        localStorage.setItem('token', data.token); // Store the token
+        localStorage.setItem('user', JSON.stringify(data.user)); // Store user data
+        onSignupSuccess(); 
+        navigate('/home');// Notify parent component
       } else {
         const errorData = await response.json().catch(() => ({ error: "Something went wrong!" }));
         setErrors({ api: errorData.error || "Failed to register" });

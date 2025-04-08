@@ -12,7 +12,7 @@
     Trash2
   } from "lucide-react";
 
-  const MachineryReview = () => {
+  const Contact = () => {
     const [formData, setFormData] = useState({
       userName: "",
       productId: "",
@@ -183,4 +183,4 @@
     );
   };
 
-  export default MachineryReview;
+  export default Contact;
