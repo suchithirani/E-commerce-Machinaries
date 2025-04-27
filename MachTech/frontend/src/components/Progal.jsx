@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import { products } from '../mockData/ProductGallery';
 import Cart from './Cart';
 import { ShoppingCart, Search, Plus, X, Filter, SlidersHorizontal } from 'lucide-react';
 
 const ProductGallery = () => {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
@@ -16,6 +18,26 @@ const ProductGallery = () => {
   const cartBadgeControls = useAnimation();
   const searchInputRef = useRef(null);
   
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/products');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   // Get unique categories and brands for filter dropdowns
   const categories = [...new Set(products.map(p => p.category))];
   const brands = [...new Set(products.map(p => p.brand))];
@@ -30,13 +52,8 @@ const ProductGallery = () => {
     }
   }, [cart.length, cartBadgeControls]);
 
-  // Add to cart with animation and sound effect
+  // Add to cart with animation
   const addToCart = (product) => {
-    // Play sound effect (optional)
-    const addSound = new Audio('/add-to-cart.mp3'); // You would need this sound file
-    addSound.volume = 0.2;
-    addSound.play().catch(e => console.log('Audio play failed', e));
-    
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -52,16 +69,15 @@ const ProductGallery = () => {
   const clearCart = () => {
     if (cart.length === 0 || window.confirm('Are you sure you want to clear your cart?')) {
       setCart([]);
-      console.log("Cart cleared successfully");
     }
   };
 
-  // Enhanced remove from cart with animation
+  // Remove from cart
   const removeFromCart = (id) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
-  // Update quantity with animations
+  // Update quantity
   const updateQuantity = (id, amount) => {
     setCart((prevCart) => {
       return prevCart
@@ -72,7 +88,7 @@ const ProductGallery = () => {
     });
   };
 
-  // Filter products with more options
+  // Filter products
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (selectedCategory ? product.category === selectedCategory : true) &&
@@ -83,7 +99,6 @@ const ProductGallery = () => {
   // Key handler for search shortcut
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ctrl/Cmd + K to focus search
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         searchInputRef.current?.focus();
@@ -97,7 +112,7 @@ const ProductGallery = () => {
   // Toggle cart visibility
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
-  // Sort products (new feature)
+  // Sort products
   const [sortBy, setSortBy] = useState('default');
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
@@ -115,13 +130,38 @@ const ProductGallery = () => {
   // Cart count for badge
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center p-6 bg-red-100 rounded-lg max-w-md">
+          <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Products</h2>
+          <p className="text-red-500 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Product Gallery</h1>
           
-          {/* Search Bar with Keyboard Shortcut */}
+          {/* Search Bar */}
           <div className="relative w-full md:w-1/3">
             <input
               ref={searchInputRef}
@@ -142,7 +182,7 @@ const ProductGallery = () => {
             )}
           </div>
           
-          {/* Cart Button with Badge */}
+          {/* Cart Button */}
           <div className="relative">
             <motion.button
               className="p-3 bg-orange-500 text-white rounded-full hover:bg-orange-600 shadow-md"
@@ -311,7 +351,7 @@ const ProductGallery = () => {
 
           {/* Main Content Area */}
           <div className="flex-1">
-            {/* Cart Panel (Conditionally Rendered) */}
+            {/* Cart Panel */}
             <AnimatePresence>
               {isCartOpen && (
                 <motion.div
@@ -371,7 +411,7 @@ const ProductGallery = () => {
                         <div className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                           <div className="relative h-48 bg-gray-200">
                             <img 
-                              src={product.image} 
+                              src={product.imageUrl} 
                               alt={product.name} 
                               className="h-full w-full object-cover"
                               loading="lazy"
@@ -443,7 +483,7 @@ const ProductGallery = () => {
                           <div className="flex flex-col sm:flex-row">
                             <div className="sm:w-48 h-48">
                               <img 
-                                src={product.image} 
+                                src={product.imageUrl} 
                                 alt={product.name} 
                                 className="h-full w-full object-cover"
                                 loading="lazy"
@@ -511,7 +551,7 @@ const ProductGallery = () => {
               </div>
             )}
             
-            {/* Pagination (Placeholder) */}
+            {/* Pagination */}
             {sortedProducts.length > 0 && (
               <div className="mt-8 flex justify-center">
                 <nav className="flex items-center gap-1">

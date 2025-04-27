@@ -2,13 +2,14 @@ package com.machine.backend.Dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public class UserDto {
     private Long id;
 
     @NotBlank(message = "Name cannot be empty")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
 
     @Email(message = "Invalid email address")
@@ -16,31 +17,24 @@ public class UserDto {
     private String email;
 
     @NotBlank(message = "Password cannot be empty")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
-
 
     private LocalDateTime createdAt;
 
-    // No-args constructor (required by frameworks like Spring)
-    public UserDto() {
-    }
+    // Constructors
+    public UserDto() {}
 
-    // Constructor for creating/updating users (with password)
-    public UserDto(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
-
-    // Constructor for returning user data (without password)
-    public UserDto(Long id, String name, String email, LocalDateTime createdAt) {
+    public UserDto(Long id, String name, String email, String password, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.password = password;
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
+    
+
     public Long getId() {
         return id;
     }
@@ -79,5 +73,16 @@ public class UserDto {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDto{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", email='" + email + '\'' +
+               ", password='" + password + '\'' +
+               ", createdAt=" + createdAt +
+               '}';
     }
 }

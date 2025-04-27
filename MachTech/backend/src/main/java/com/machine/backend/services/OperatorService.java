@@ -3,70 +3,120 @@ package com.machine.backend.services;
 import com.machine.backend.Dto.OperatorDto;
 import com.machine.backend.models.Operator;
 import com.machine.backend.repository.OperatorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OperatorService {
-    @Autowired
-    private OperatorRepository operatorRepository;
 
-    public List<Operator> findAll() {
-        return operatorRepository.findAll();
+    private final OperatorRepository operatorRepository;
+
+    public OperatorService(OperatorRepository operatorRepository) {
+        this.operatorRepository = operatorRepository;
     }
 
-    public Optional<Operator> findById(Long id) {
-        return operatorRepository.findById(id);
+    public List<OperatorDto> getAllOperators() {
+        return operatorRepository.findAll()
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public Operator save(OperatorDto operatorDTO) {
-        Operator operator = new Operator(
-                operatorDTO.getName(),
-                operatorDTO.getLocation(),
-                operatorDTO.getExperienceRange(),
-                operatorDTO.isCertified(),
-                operatorDTO.isLicensed(),
-                operatorDTO.getAvailability(),
-                operatorDTO.getEquipmentTypes()
-        );
-        return operatorRepository.save(operator);
-    }
-
-    public Operator update(Long id, OperatorDto operatorDTO) {
+    public OperatorDto getOperatorById(Long id) {
         Operator operator = operatorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Operator not found with id: " + id));
+                .orElse(null);
+        return operator != null ? convertToDto(operator) : null;
+    }
+
+    public List<OperatorDto> createOperators(List<OperatorDto> operatorDtos) {
+        List<Operator> operators = operatorDtos.stream()
+                .map(this::convertToEntity)
+                .collect(Collectors.toList());
         
-        operator.setName(operatorDTO.getName());
-        operator.setLocation(operatorDTO.getLocation());
-        operator.setExperienceRange(operatorDTO.getExperienceRange());
-        operator.setCertified(operatorDTO.isCertified());
-        operator.setLicensed(operatorDTO.isLicensed());
-        operator.setAvailability(operatorDTO.getAvailability());
-        operator.setEquipmentTypes(operatorDTO.getEquipmentTypes());
+        List<Operator> savedOperators = operatorRepository.saveAll(operators);
         
-        return operatorRepository.save(operator);
+        return savedOperators.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public void delete(Long id) {
-        operatorRepository.deleteById(id);
+    public OperatorDto updateOperator(Long id, OperatorDto operatorDto) {
+        return operatorRepository.findById(id)
+                .map(existingOperator -> {
+                    updateOperatorFromDto(existingOperator, operatorDto);
+                    Operator updatedOperator = operatorRepository.save(existingOperator);
+                    return convertToDto(updatedOperator);
+                })
+                .orElse(null);
     }
 
-    public List<Operator> findByLocation(String location) {
-        return operatorRepository.findByLocation(location);
+    public boolean deleteOperator(Long id) {
+        if (operatorRepository.existsById(id)) {
+            operatorRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
-    public List<Operator> findByCertified(boolean certified) {
-        return operatorRepository.findByCertified(certified);
+    private OperatorDto convertToDto(Operator operator) {
+        OperatorDto dto = new OperatorDto();
+        dto.setId(operator.getId());
+        dto.setName(operator.getName());
+        dto.setAvatar(operator.getAvatar());
+        dto.setAvatarBg(operator.getAvatarBg());
+        dto.setAvatarColor(operator.getAvatarColor());
+        dto.setLocation(operator.getLocation());
+        dto.setExperience(operator.getExperience());
+        dto.setEquipment(operator.getEquipment());
+        dto.setCertified(operator.isCertified());
+        dto.setLicensed(operator.isLicensed());
+        dto.setPhoneNumber(operator.getPhoneNumber());
+        dto.setEmail(operator.getEmail());
+        dto.setJoinedDate(operator.getJoinedDate());
+        dto.setAvailability(operator.getAvailability());
+        dto.setCertifications(operator.getCertifications());
+        dto.setPreviousProjects(operator.getPreviousProjects());
+        return dto;
     }
 
-    public List<Operator> findByLicensed(boolean licensed) {
-        return operatorRepository.findByLicensed(licensed);
+    private Operator convertToEntity(OperatorDto dto) {
+        Operator operator = new Operator();
+        operator.setName(dto.getName());
+        operator.setAvatar(dto.getAvatar());
+        operator.setAvatarBg(dto.getAvatarBg());
+        operator.setAvatarColor(dto.getAvatarColor());
+        operator.setLocation(dto.getLocation());
+        operator.setExperience(dto.getExperience());
+        operator.setEquipment(dto.getEquipment());
+        operator.setCertified(dto.isCertified());
+        operator.setLicensed(dto.isLicensed());
+        operator.setPhoneNumber(dto.getPhoneNumber());
+        operator.setEmail(dto.getEmail());
+        operator.setJoinedDate(dto.getJoinedDate());
+        operator.setAvailability(dto.getAvailability());
+        operator.setCertifications(dto.getCertifications());
+        operator.setPreviousProjects(dto.getPreviousProjects());
+        return operator;
     }
 
-    public List<Operator> findByEquipmentType(String equipmentType) {
-        return operatorRepository.findByEquipmentTypesContaining(equipmentType);
+    private void updateOperatorFromDto(Operator operator, OperatorDto dto) {
+        operator.setName(dto.getName());
+        operator.setAvatar(dto.getAvatar());
+        operator.setAvatarBg(dto.getAvatarBg());
+        operator.setAvatarColor(dto.getAvatarColor());
+        operator.setLocation(dto.getLocation());
+        operator.setExperience(dto.getExperience());
+        operator.setEquipment(dto.getEquipment());
+        operator.setCertified(dto.isCertified());
+        operator.setLicensed(dto.isLicensed());
+        operator.setPhoneNumber(dto.getPhoneNumber());
+        operator.setEmail(dto.getEmail());
+        operator.setJoinedDate(dto.getJoinedDate());
+        operator.setAvailability(dto.getAvailability());
+        operator.setCertifications(dto.getCertifications());
+        operator.setPreviousProjects(dto.getPreviousProjects());
     }
 }

@@ -4,6 +4,8 @@ import com.machine.backend.Dto.UserDto;
 import com.machine.backend.models.User;
 import com.machine.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Import this
+import org.springframework.security.crypto.password.PasswordEncoder;  // Import this
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +16,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); // Create it manually
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
@@ -36,7 +40,9 @@ public class UserService {
         User user = new User();
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword()); // Directly storing the password (no encoding)
+
+        // ENCODE password
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
@@ -56,7 +62,7 @@ public class UserService {
             user.setEmail(userDTO.getEmail());
         }
         if (userDTO.getPassword() != null && !userDTO.getPassword().isBlank()) {
-            user.setPassword(userDTO.getPassword()); // Directly updating the password (no encoding)
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // ENCODE
         }
 
         User updatedUser = userRepository.save(user);
@@ -66,15 +72,14 @@ public class UserService {
     public UserDto authenticateUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-    
-        // Simple plain-text password check (not recommended for production)
+        
+        // Direct comparison of plain text passwords (for your case)
         if (user.getPassword().equals(password)) {
             return convertToDTO(user);
         } else {
             return null;  // Return null if the password does not match.
         }
     }
-    
 
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
@@ -88,6 +93,7 @@ public class UserService {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
+                user.getPassword(),
                 user.getCreatedAt()
         );
     }

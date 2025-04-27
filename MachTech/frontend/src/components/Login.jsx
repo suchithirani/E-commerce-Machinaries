@@ -17,7 +17,7 @@ const Login = ({ onClose, onSignupClick, onLoginSuccess }) => {
     setLoading(true);
   
     try {
-      const response = await fetch("http://localhost:8080/api/users/login", {
+      const response = await fetch("http://localhost:8080/api/jwt/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -27,8 +27,9 @@ const Login = ({ onClose, onSignupClick, onLoginSuccess }) => {
   
       if (response.ok) {
         // Save user data to localStorage
+        console.log(response.data);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        
         
         // Notify parent component of successful login
         onLoginSuccess();

@@ -1,11 +1,13 @@
 package com.machine.backend.controllers;
 
+import com.machine.backend.Dto.LoginRequest;
 import com.machine.backend.Dto.UserDto;
 import com.machine.backend.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,46 +16,71 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+        List<UserDto> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+        UserDto user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/register")
-public ResponseEntity<?> registerUser(@Valid @RequestBody UserDto userDto) {
-    // Check manually if any field is null to avoid issues with unbound fields
-    if (userDto.getPassword() == null) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password field is missing in the request!");
-    }
-
-    // Proceed with service logic after validation
-    UserDto createdUser = userService.createUser(userDto);
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-}
-    
-
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserDto userDto) {
-        UserDto authenticatedUser = userService.authenticateUser(userDto.getEmail(), userDto.getPassword());
-
-        if (authenticatedUser != null) {
-            return ResponseEntity.ok(authenticatedUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+        }
+        
+        try {
+            UserDto createdUser = userService.createUser(userDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating user: " + e.getMessage());
         }
     }
 
+    @PostMapping("/login")
+public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+    try {
+        UserDto authenticatedUser = userService.authenticateUser(
+            loginRequest.getEmail(),
+            loginRequest.getPassword()
+        );
+        
+        if (authenticatedUser != null) {
+            return ResponseEntity.ok(authenticatedUser);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid email or password");
+        }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Login failed: " + e.getMessage());
+    }
+}
+
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.updateUser(id, userDto));
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id, 
+            @Valid @RequestBody UserDto userDto) {
+        try {
+            UserDto updatedUser = userService.updateUser(id, userDto);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating user: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

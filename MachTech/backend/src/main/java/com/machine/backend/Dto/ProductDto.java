@@ -3,17 +3,21 @@ package com.machine.backend.Dto;
 import java.math.BigDecimal;
 
 public class ProductDto {
+    private Long id;
     private String name;
     private String description;
     private BigDecimal price;
-    private Long categoryId;
-    private Integer stock;
-    private String imageUrl;
+    private String category;
     private String brand;
-    private BigDecimal weight;
-    private String warranty;
+    private String imageUrl;
+    public Long getId() {
+      return id;
+    }
+    public void setId(Long id) {
+      this.id = id;
+    }
     public String getName() {
-      return name; 
+      return name;
     }
     public void setName(String name) {
       this.name = name;
@@ -30,23 +34,11 @@ public class ProductDto {
     public void setPrice(BigDecimal price) {
       this.price = price;
     }
-    public Long getCategoryId() {
-      return categoryId;
+    public String getCategory() {
+      return category;
     }
-    public void setCategoryId(Long categoryId) {
-      this.categoryId = categoryId;
-    }
-    public Integer getStock() {
-      return stock;
-    }
-    public void setStock(Integer stock) {
-      this.stock = stock;
-    }
-    public String getImageUrl() {
-      return imageUrl;
-    }
-    public void setImageUrl(String imageUrl) {
-      this.imageUrl = imageUrl;
+    public void setCategory(String category) {
+      this.category = category;
     }
     public String getBrand() {
       return brand;
@@ -54,17 +46,12 @@ public class ProductDto {
     public void setBrand(String brand) {
       this.brand = brand;
     }
-    public BigDecimal getWeight() {
-      return weight;
+    public String getImageUrl() {
+      return imageUrl;
     }
-    public void setWeight(BigDecimal weight) {
-      this.weight = weight;
-    }
-    public String getWarranty() {
-      return warranty;
-    }
-    public void setWarranty(String warranty) {
-      this.warranty = warranty;
+    public void setImageUrl(String imageUrl) {
+      this.imageUrl = imageUrl;
     }
 
+    
 }

@@ -95,8 +95,7 @@ const AppLayout = () => {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
+          
           
           {/* Protected routes - only accessible when logged in */}
           <Route element={<ProtectedRoute />}>
@@ -140,6 +139,8 @@ const AppLayout = () => {
               } 
             />
             <Route path="/operatorlistingpage" element={<OperatorListingPage />} />
+            <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           </Route>
 
           {/* Fallback route */}

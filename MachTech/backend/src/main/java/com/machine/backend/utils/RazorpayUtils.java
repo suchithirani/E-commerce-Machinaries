@@ -1,4 +1,4 @@
-package com.machine.utils;
+package com.machine.backend.utils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

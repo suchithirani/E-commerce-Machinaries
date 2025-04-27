@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Clock, Phone, Eye, X, Mail } from 'lucide-react';
-import { operators } from '../mockData/operator';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 const OperatorListingPage = () => {
   const [hoveredOperator, setHoveredOperator] = useState(null);
   const [filteredOperators, setFilteredOperators] = useState([]);
+  const [operators, setOperators] = useState([]);
   const [selectedOperator, setSelectedOperator] = useState(null);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [experienceFilters, setExperienceFilters] = useState([
     { label: '0-2 Years', selected: false },
@@ -20,6 +23,30 @@ const OperatorListingPage = () => {
     { label: 'Certified Operators', selected: false },
     { label: 'Licensed Operators', selected: false }
   ]);
+
+  useEffect(() => {
+    const fetchOperators = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8080/api/operators', {
+          method:'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        setOperators(response.data);
+        setFilteredOperators(response.data);
+        setLoading(false);
+      
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchOperators();
+  }, []);
 
   const applyFilters = () => {
     let result = [...operators];
@@ -56,11 +83,7 @@ const OperatorListingPage = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [experienceFilters, qualificationFilters]);
-
-  useEffect(() => {
-    setFilteredOperators(operators);
-  }, []);
+  }, [experienceFilters, qualificationFilters, operators]);
 
   const handleContactClick = (operator) => {
     setSelectedOperator(operator);
@@ -71,6 +94,22 @@ const OperatorListingPage = () => {
     setShowContactModal(false);
     setSelectedOperator(null);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -166,11 +205,13 @@ const OperatorListingPage = () => {
                         <div
                           className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
                           style={{
-                            backgroundColor: operator.avatarBg,
-                            color: operator.avatarColor
+                            backgroundColor: operator.avatarBg || '#f97316',
+                            color: operator.avatarColor || '#fff'
                           }}
                         >
-                          <span className="font-bold text-lg">{operator.avatar}</span>
+                          <span className="font-bold text-lg">
+                            {operator.avatar || operator.name.charAt(0)}
+                          </span>
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg truncate">{operator.name}</h3>
@@ -180,7 +221,7 @@ const OperatorListingPage = () => {
                           </div>
                         </div>
                         <div className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">
-                          Unavailable
+                          {operator.available ? 'Available' : 'Unavailable'}
                         </div>
                       </div>
 
@@ -192,7 +233,7 @@ const OperatorListingPage = () => {
                       <div className="mb-4">
                         <div className="text-gray-500 text-sm mb-1">Equipment Types:</div>
                         <div className="flex flex-wrap gap-2">
-                          {operator.equipment.map((item, i) => (
+                          {operator.equipment?.map((item, i) => (
                             <span key={i} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs">
                               {item}
                             </span>
@@ -255,9 +296,14 @@ const OperatorListingPage = () => {
                 <div className="flex items-center">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
-                    style={{ backgroundColor: selectedOperator.avatarBg, color: selectedOperator.avatarColor }}
+                    style={{ 
+                      backgroundColor: selectedOperator.avatarBg || '#f97316', 
+                      color: selectedOperator.avatarColor || '#fff'
+                    }}
                   >
-                    <span className="font-bold text-lg">{selectedOperator.avatar}</span>
+                    <span className="font-bold text-lg">
+                      {selectedOperator.avatar || selectedOperator.name.charAt(0)}
+                    </span>
                   </div>
                   <div>
                     <h3 className="text-lg font-bold">{selectedOperator.name}</h3>
@@ -287,7 +333,7 @@ const OperatorListingPage = () => {
                 <div className="mb-4">
                   <h4 className="text-sm font-semibold mb-2">Equipment Expertise</h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedOperator.equipment.map((item, index) => (
+                    {selectedOperator.equipment?.map((item, index) => (
                       <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs">
                         {item}
                       </span>
